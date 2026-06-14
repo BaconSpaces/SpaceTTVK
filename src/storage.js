@@ -1,15 +1,25 @@
 /**
- * Recent & favorite emote persistence for SpaceTTVK.
+ * Favorite emote persistence for SpaceTTVK.
  * Loaded before content.js in the page context.
  */
 (() => {
   "use strict";
 
-  const RECENT_KEY = "sttvk_recent_emotes";
   const FAVORITES_KEY = "sttvk_favorite_emotes";
-  const STATS_KEY = "sttvk_stats";
-  const MAX_RECENT = 12;
+  const OPTIONS_KEY = "sttvk_options";
   const MAX_FAVORITES = 36;
+
+  /** @type {Record<string, boolean>} */
+  const DEFAULT_OPTIONS = {
+    enabled: true,
+    emotes_7tv: true,
+    emotes_bttv: true,
+    emotes_ffz: true,
+    colon_autocomplete: true,
+    chat_render: true,
+    hide_kick_native: true,
+    show_favorites: true,
+  };
 
   /** @typedef {{ code: string, name: string, url: string, provider: string }} StoredEmote */
 
@@ -37,29 +47,9 @@
   /**
    * @returns {Promise<StoredEmote[]>}
    */
-  async function getRecent() {
-    const data = await chrome.storage.local.get(RECENT_KEY);
-    return data[RECENT_KEY] || [];
-  }
-
-  /**
-   * @returns {Promise<StoredEmote[]>}
-   */
   async function getFavorites() {
     const data = await chrome.storage.local.get(FAVORITES_KEY);
     return data[FAVORITES_KEY] || [];
-  }
-
-  /**
-   * @param {StoredEmote} emote
-   */
-  async function addRecent(emote) {
-    const entry = normalize(emote);
-    const list = await getRecent();
-    const next = [entry, ...list.filter((e) => emoteKey(e) !== emoteKey(entry))].slice(0, MAX_RECENT);
-    await chrome.storage.local.set({ [RECENT_KEY]: next });
-    await bumpStat("emotesUsed");
-    return next;
   }
 
   /**
@@ -74,7 +64,6 @@
       ? list.filter((e) => emoteKey(e) !== emoteKey(entry))
       : [entry, ...list].slice(0, MAX_FAVORITES);
     await chrome.storage.local.set({ [FAVORITES_KEY]: favorites });
-    if (!exists) await bumpStat("favoritesAdded");
     return { favorites, added: !exists };
   }
 
@@ -89,31 +78,27 @@
   }
 
   /**
-   * @param {"emotesUsed"|"rouletteRolls"|"favoritesAdded"} field
+   * @returns {Promise<Record<string, boolean>>}
    */
-  async function bumpStat(field) {
-    const data = await chrome.storage.local.get(STATS_KEY);
-    const stats = data[STATS_KEY] || { emotesUsed: 0, rouletteRolls: 0, favoritesAdded: 0 };
-    stats[field] = (stats[field] || 0) + 1;
-    await chrome.storage.local.set({ [STATS_KEY]: stats });
+  async function getOptions() {
+    const data = await chrome.storage.local.get(OPTIONS_KEY);
+    return { ...DEFAULT_OPTIONS, ...(data[OPTIONS_KEY] || {}) };
   }
 
   /**
-   * @returns {Promise<Record<string, number>>}
+   * @param {Record<string, boolean>} options
    */
-  async function getStats() {
-    const data = await chrome.storage.local.get(STATS_KEY);
-    return data[STATS_KEY] || { emotesUsed: 0, rouletteRolls: 0, favoritesAdded: 0 };
+  async function setOptions(options) {
+    await chrome.storage.local.set({ [OPTIONS_KEY]: { ...DEFAULT_OPTIONS, ...options } });
   }
 
   window.STTVKStorage = {
-    getRecent,
     getFavorites,
-    addRecent,
     toggleFavorite,
     hydrate,
-    bumpStat,
-    getStats,
     emoteKey,
+    getOptions,
+    setOptions,
+    DEFAULT_OPTIONS,
   };
 })();

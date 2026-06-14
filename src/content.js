@@ -3,11 +3,6 @@
 
   const MAX_RESULTS = 8;
   const TRIGGER = ":";
-  const DICE_SVG =
-    "data:image/svg+xml," +
-    encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#26262c"/><circle cx="20" cy="20" r="6" fill="#5b9fd4"/><circle cx="44" cy="44" r="6" fill="#5b9fd4"/><circle cx="32" cy="32" r="6" fill="#53fc18"/></svg>'
-    );
 
   /** @type {import('./emotes.js').Emote[] | null} */
   let emotes = null;
@@ -59,19 +54,47 @@
   let nativeSuppressObserver = null;
   let kickNativeBlockerObserver = null;
   let kickDisableTimer = null;
+  /** @type {Record<string, boolean>} */
+  let options = { ...(window.STTVKStorage?.DEFAULT_OPTIONS || {}) };
 
   init();
 
+  async function loadOptions() {
+    if (!window.STTVKStorage) return;
+    options = await window.STTVKStorage.getOptions();
+  }
+
+  /**
+   * @param {import('./emotes.js').Emote[]} list
+   */
+  function filterEmotes(list) {
+    return list.filter((emote) => {
+      if (emote.provider === "7TV" && options.emotes_7tv === false) return false;
+      if (emote.provider === "BTTV" && options.emotes_bttv === false) return false;
+      if (emote.provider === "FFZ" && options.emotes_ffz === false) return false;
+      return true;
+    });
+  }
+
   function init() {
-    createDropdown();
-    if (platform === "kick") {
-      document.documentElement.classList.add("sttvk-kick");
-      startPermanentKickNativeBlocker();
-    }
-    observeNavigation();
-    observeChatInputs();
-    disableNativeColonAutocomplete();
-    refreshEmotes();
+    void loadOptions().then(() => {
+      createDropdown();
+      if (platform === "kick" && options.hide_kick_native !== false) {
+        document.documentElement.classList.add("sttvk-kick");
+        startPermanentKickNativeBlocker();
+      }
+      observeNavigation();
+      observeChatInputs();
+      disableNativeColonAutocomplete();
+      refreshEmotes();
+    });
+
+    chrome.storage.onChanged.addListener((changes) => {
+      if (!changes.sttvk_options) return;
+      options = { ...window.STTVKStorage.DEFAULT_OPTIONS, ...changes.sttvk_options.newValue };
+      if (options.enabled === false) hideDropdown();
+      if (emotes) emotes = filterEmotes(emotes);
+    });
   }
 
   function getChannel() {
@@ -103,7 +126,7 @@
           emotes = [];
           return;
         }
-        emotes = response.emotes || [];
+        emotes = filterEmotes(response.emotes || []);
       }
     );
   }
@@ -122,7 +145,7 @@
       if (Number.isNaN(index)) return;
 
       const emote = visibleResults[index];
-      if (e.altKey && emote && !emote.isRoulette) {
+      if (e.altKey && emote) {
         void toggleFavoriteEmote(emote, item);
         return;
       }
@@ -174,7 +197,7 @@
 
     el.addEventListener("input", () => onInput(el));
     el.addEventListener("keyup", () => onInput(el));
-    el.addEventListener("keydown", (e) => onKeyDown(e, el), true);
+    el.addEventListener("keydown", async (e) => await onKeyDown(e, el), true);
     el.addEventListener("blur", () => {
       setTimeout(hideDropdown, 120);
     });
@@ -188,6 +211,11 @@
    * @param {HTMLElement} el
    */
   function onInput(el) {
+    if (options.enabled === false || options.colon_autocomplete === false) {
+      hideDropdown();
+      return;
+    }
+
     activeInput = el;
     refreshEmotes();
     disableNativeColonAutocomplete();
@@ -225,28 +253,17 @@
     const q = query.toLowerCase();
     const storage = window.STTVKStorage;
 
-    if (q === "roll" || q === "surprise") {
-      return [createRouletteEntry()];
-    }
-
-    if (q === "" && storage) {
-      const [recent, favorites] = await Promise.all([storage.getRecent(), storage.getFavorites()]);
-      const merged = [
-        ...storage.hydrate(favorites, emotes),
-        ...storage.hydrate(recent, emotes),
-      ];
+    if (q === "" && storage && options.show_favorites !== false) {
+      const favorites = await storage.getFavorites();
+      const hydrated = storage.hydrate(favorites, emotes);
       const seen = new Set();
       const results = [];
 
-      for (const emote of merged) {
+      for (const emote of hydrated) {
         const key = storage.emoteKey(emote);
         if (seen.has(key)) continue;
         seen.add(key);
-        results.push({
-          ...emote,
-          isFavorite: favorites.some((f) => storage.emoteKey(f) === key),
-          isRecent: recent.some((r) => storage.emoteKey(r) === key),
-        });
+        results.push({ ...emote, isFavorite: true });
         if (results.length >= MAX_RESULTS) return results;
       }
 
@@ -260,33 +277,33 @@
       return results;
     }
 
-    const filtered = emotes
+    return emotes
       .filter((e) => e.name.toLowerCase().includes(q) || e.code.toLowerCase().includes(q))
       .slice(0, MAX_RESULTS);
-
-    if ("roll".startsWith(q) || "surprise".startsWith(q)) {
-      return [createRouletteEntry(), ...filtered].slice(0, MAX_RESULTS);
-    }
-
-    return filtered;
-  }
-
-  function createRouletteEntry() {
-    return {
-      code: "roll",
-      name: "Roll a random emote!",
-      url: DICE_SVG,
-      provider: "SURPRISE",
-      isRoulette: true,
-    };
   }
 
   /**
    * @param {KeyboardEvent} e
    * @param {HTMLElement} el
    */
-  function onKeyDown(e, el) {
-    if (!dropdown?.classList.contains("is-visible")) return;
+  async function onKeyDown(e, el) {
+    if (!dropdown?.classList.contains("is-visible")) {
+      if (e.key === "Tab") {
+        const match = getTriggerMatch(el);
+        if (!match) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        await updateResults(el, match);
+        if (visibleResults.length > 0) {
+          selectEmote(0);
+        } else {
+          hideDropdown();
+        }
+      }
+      return;
+    }
 
     switch (e.key) {
       case "ArrowDown":
@@ -489,6 +506,10 @@
       return false;
     }
 
+    if (node.querySelector('[data-testid="chat-input"], [data-input="true"], [role="textbox"], [contenteditable="true"]')) {
+      return false;
+    }
+
     const inInputZone = node.closest(
       "#chatroom-footer, #chat-input-wrapper, [data-testid='chat-input'], [data-testid='chat-input-area']"
     );
@@ -507,8 +528,7 @@
     return (
       node.matches("[role='listbox']") ||
       emoteImgs.length >= 2 ||
-      Boolean(inPopper) ||
-      node.querySelector("button, [role='option']") !== null
+      (Boolean(inPopper) && node.querySelector("button, [role='option']") !== null)
     );
   }
 
@@ -627,7 +647,6 @@
     visibleResults.forEach((emote, index) => {
       const item = document.createElement("div");
       item.className = "sttvk-autocomplete-item";
-      if (emote.isRoulette) item.classList.add("is-roulette");
       if (index === selectedIndex) item.classList.add("is-selected");
       item.dataset.index = String(index);
       item.setAttribute("role", "option");
@@ -639,11 +658,11 @@
 
       const name = document.createElement("span");
       name.className = "sttvk-autocomplete-name";
-      name.textContent = emote.isRoulette ? "🎲 Roll random emote!" : emote.code;
+      name.textContent = emote.code;
 
       const provider = document.createElement("span");
       provider.className = "sttvk-autocomplete-provider";
-      provider.textContent = emote.isRoulette ? "(SURPRISE)" : `(${emote.provider})`;
+      provider.textContent = `(${emote.provider})`;
 
       item.append(img, name, provider);
 
@@ -651,11 +670,6 @@
         const badge = document.createElement("span");
         badge.className = "sttvk-autocomplete-badge is-fav";
         badge.textContent = "★ fav";
-        item.appendChild(badge);
-      } else if (emote.isRecent) {
-        const badge = document.createElement("span");
-        badge.className = "sttvk-autocomplete-badge is-recent";
-        badge.textContent = "recent";
         item.appendChild(badge);
       }
 
@@ -679,38 +693,12 @@
       fav.textContent = "★ fav";
       item.appendChild(fav);
       emote.isFavorite = true;
-      launchConfetti(item.getBoundingClientRect(), 12);
       return;
     }
     if (!added && badge) {
       badge.remove();
       emote.isFavorite = false;
     }
-  }
-
-  function launchConfetti(anchorRect, count = 28) {
-    const layer = document.createElement("div");
-    layer.className = "sttvk-confetti-layer";
-    document.documentElement.appendChild(layer);
-
-    const originX = anchorRect ? anchorRect.left + anchorRect.width / 2 : window.innerWidth / 2;
-    const originY = anchorRect ? anchorRect.top : window.innerHeight * 0.7;
-    const colors = ["#53fc18", "#5b9fd4", "#ff6b6b", "#ffd166", "#c77dff", "#4cc9f0"];
-
-    for (let i = 0; i < count; i++) {
-      const piece = document.createElement("div");
-      piece.className = "sttvk-confetti-piece";
-      piece.style.left = `${originX}px`;
-      piece.style.top = `${originY}px`;
-      piece.style.background = colors[i % colors.length];
-      const dx = (Math.random() - 0.5) * 260;
-      const dy = -80 - Math.random() * 220;
-      piece.style.setProperty("--dx", `${dx}px`);
-      piece.style.setProperty("--dy", `${dy}px`);
-      layer.appendChild(piece);
-    }
-
-    setTimeout(() => layer.remove(), 1200);
   }
 
   /**
@@ -724,35 +712,10 @@
     const match = getTriggerMatch(el);
     if (!match) return;
 
-    if (pick.isRoulette) {
-      void insertRouletteEmote(el, match);
-      return;
-    }
-
     replaceRange(el, match.start, match.end, pick.code + " ");
     hideDropdown();
     el.focus();
     el.dispatchEvent(new Event("input", { bubbles: true }));
-    window.STTVKStorage?.addRecent(pick);
-  }
-
-  /**
-   * @param {HTMLElement} el
-   * @param {{ start: number, end: number }} match
-   */
-  async function insertRouletteEmote(el, match) {
-    if (!emotes?.length) return;
-
-    const winner = emotes[Math.floor(Math.random() * emotes.length)];
-    replaceRange(el, match.start, match.end, winner.code + " ");
-    hideDropdown();
-    el.focus();
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-
-    const anchor = getDropdownAnchor(el);
-    launchConfetti(anchor.getBoundingClientRect(), 36);
-    await window.STTVKStorage?.addRecent(winner);
-    await window.STTVKStorage?.bumpStat("rouletteRolls");
   }
 
   /**

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "SpaceTTVK Emotes",
-  "version": "1.1.0",
-  "description": "7TV, BTTV & FFZ emote autocomplete with : on Twitch and Kick — plus Emote Roulette!",
+  "name": "SpaceTTVK",
+  "version": "1.3.0",
+  "description": "7TV, BTTV & FFZ emotes for Kick — PolyExtended-style controls",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -28,14 +28,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.twitch.tv/*", "https://*.kick.com/*"],
-      "js": ["src/storage.js", "src/content.js"],
-      "css": ["src/autocomplete.css"],
+      "matches": ["https://*.twitch.tv/*", "https://twitch.tv/*", "https://*.kick.com/*", "https://kick.com/*"],
+      "js": ["src/storage.js", "src/content.js", "src/chat-render.js"],
+      "css": ["src/autocomplete.css", "src/chat.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_title": "SpaceTTVK Emotes",
+    "default_title": "SpaceTTVK",
     "default_popup": "popup.html"
   }
 }

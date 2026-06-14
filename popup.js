@@ -1,42 +1,55 @@
-const DICE_SVG =
-  "data:image/svg+xml," +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#26262c"/><circle cx="20" cy="20" r="6" fill="#5b9fd4"/><circle cx="44" cy="44" r="6" fill="#5b9fd4"/><circle cx="32" cy="32" r="6" fill="#53fc18"/></svg>'
-  );
+const OPTION_IDS = [
+  "enabled",
+  "emotes_7tv",
+  "emotes_bttv",
+  "emotes_ffz",
+  "colon_autocomplete",
+  "chat_render",
+  "hide_kick_native",
+  "show_favorites",
+];
 
-async function render() {
+async function init() {
   const storage = window.STTVKStorage;
   if (!storage) return;
 
-  const [recent, favorites, stats] = await Promise.all([
-    storage.getRecent(),
-    storage.getFavorites(),
-    storage.getStats(),
-  ]);
+  const options = await storage.getOptions();
 
-  document.getElementById("stat-used").textContent = String(stats.emotesUsed || 0);
-  document.getElementById("stat-rolls").textContent = String(stats.rouletteRolls || 0);
-  document.getElementById("stat-favs").textContent = String(favorites.length);
+  for (const id of OPTION_IDS) {
+    const input = document.getElementById(id);
+    if (input) input.checked = options[id] !== false;
+  }
 
-  renderList("recent-list", recent.slice(0, 6), "No recent emotes yet — pick one in chat!");
-  renderList("fav-list", favorites.slice(0, 8), "Alt+click an emote in chat to favorite it ⭐");
+  document.querySelectorAll(".ch").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const next = await storage.getOptions();
+      next[input.id] = input.checked;
+      await storage.setOptions(next);
+    });
+  });
+
+  await renderFavorites();
 }
 
-/**
- * @param {string} containerId
- * @param {Array<{code:string,url:string,provider:string}>} items
- * @param {string} emptyText
- */
-function renderList(containerId, items, emptyText) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = "";
+async function renderFavorites() {
+  const storage = window.STTVKStorage;
+  if (!storage) return;
 
-  if (!items.length) {
-    el.innerHTML = `<p class="empty">${emptyText}</p>`;
+  const favorites = await storage.getFavorites();
+  const list = document.getElementById("fav-list");
+  const hint = document.getElementById("fav-hint");
+  const count = document.getElementById("stat-favs");
+
+  count.textContent = String(favorites.length);
+  list.innerHTML = "";
+
+  if (!favorites.length) {
+    hint.style.display = "block";
     return;
   }
 
-  for (const emote of items) {
+  hint.style.display = "none";
+  for (const emote of favorites.slice(0, 10)) {
     const row = document.createElement("div");
     row.className = "emote-chip";
     row.innerHTML = `
@@ -44,8 +57,8 @@ function renderList(containerId, items, emptyText) {
       <span class="chip-name">${emote.code}</span>
       <span class="chip-provider">(${emote.provider})</span>
     `;
-    el.appendChild(row);
+    list.appendChild(row);
   }
 }
 
-document.addEventListener("DOMContentLoaded", render);
+document.addEventListener("DOMContentLoaded", init);

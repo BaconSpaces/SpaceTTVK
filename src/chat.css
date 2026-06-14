@@ -1,0 +1,28 @@
+.sttvk-chat-emote {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0 1px;
+  pointer-events: auto;
+}
+
+.sttvk-chat-emote img {
+  display: inline-block;
+  height: 1.75rem;
+  width: auto;
+  max-width: 6rem;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* Twitch chat line alignment */
+[data-testid="chat-line-message"] .sttvk-chat-emote img,
+.chat-line__message .sttvk-chat-emote img {
+  height: 28px;
+}
+
+/* Kick chat alignment */
+[data-testid="chat-message"] .sttvk-chat-emote img,
+#channel-chatroom .sttvk-chat-emote img {
+  height: 1.5rem;
+}

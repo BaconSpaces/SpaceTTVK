@@ -1,10 +1,21 @@
-# SpaceTTVK Emotes
+# SpaceTTVK
 
-Chrome extension that adds **7TV**, **BTTV**, and **FFZ** emote autocomplete to **Twitch** and **Kick** chat using the `:` trigger.
+Chrome extension for **Kick** (and Twitch) inspired by the clean toggle UI of [PolyExtended](https://github.com/PolyExtended/PolyExtended). Adds **7TV**, **BTTV**, and **FFZ** emote autocomplete and chat rendering.
 
-Type `:` followed by an emote name (for example `:W` or `:pepe`) and pick from the dropdown with your mouse or keyboard.
+Type `:` followed by an emote name and pick from the dropdown.
 
 ![Emote autocomplete preview](assets/preview.png)
+
+## Popup (PolyExtended-style)
+
+Click the extension icon for a white toggle panel with Kick-green accents:
+
+- **SpaceTTVK emotes** — master switch
+  - 7TV / BTTV / FFZ sub-toggles
+- **Colon autocomplete** — `:` search in chat
+- **Emotes in chat** — render third-party emotes as images
+- **Hide Kick native picker** — removes Kick's built-in `:` menu
+- **Favorites** — starred emotes list (Alt+click in chat)
 
 ## Features
 
@@ -13,9 +24,8 @@ Type `:` followed by an emote name (for example `:W` or `:pepe`) and pick from t
 - Keyboard navigation: ↑ ↓ to move, Enter or Tab to insert, Esc to close
 - Loads global + channel emotes automatically when you open a stream
 - Works on Twitch (`twitch.tv`) and Kick (`kick.com`)
-- **🎲 Emote Roulette** — type `:roll` or `:surprise` for a random emote + confetti
-- **⭐ Favorites** — Alt+click any emote in the dropdown to save it
-- **🕐 Recent emotes** — type `:` alone to see your favorites & recently used emotes
+- **⭐ Favorites** — Alt+click any emote in the dropdown to save it; type `:` alone to see them first
+- **💬 Chat rendering** — 7TV, BTTV & FFZ emotes show as images in chat messages
 
 ## Supported providers
 
@@ -43,7 +53,7 @@ On Kick, BTTV and FFZ channel emotes are loaded when the streamer has a matching
 4. Use ↑↓ or hover to highlight an emote
 5. Press **Enter** or click to insert the emote code
 
-The extension inserts the emote **text code** (for example `LUL` or `pepeLaugh`). Rendering still depends on each site’s emote support (7TV/BTTV/FFZ extensions or native Kick 7TV support).
+The extension inserts the emote **text code** (for example `LUL` or `pepeLaugh`) and **renders it as an image in chat** for you and other extension users viewing the page.
 
 ## Project structure
 
@@ -51,12 +61,16 @@ The extension inserts the emote **text code** (for example `LUL` or `pepeLaugh`)
 SpaceTTVK/
 ├── manifest.json
 ├── popup.html
+├── popup.css
+├── popup.js
 ├── icons/
 ├── src/
 │   ├── background.js   # Fetches & caches emotes
 │   ├── emotes.js       # 7TV / BTTV / FFZ API helpers
 │   ├── content.js      # Chat autocomplete UI
-│   ├── storage.js      # Recent, favorites & stats
+│   ├── chat-render.js  # Emote images in chat messages
+│   ├── chat.css
+│   ├── storage.js      # Favorites
 │   └── autocomplete.css
 └── README.md
 ```

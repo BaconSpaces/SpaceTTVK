@@ -1,0 +1,209 @@
+body {
+  width: 360px;
+  min-height: 500px;
+  background: linear-gradient(180deg, #07070a 0%, #11131b 100%);
+  color: #e8edf7;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  margin: 0;
+  padding: 14px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #1f8f3d;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px rgba(15, 61, 25, 0.16);
+}
+
+.brand-sub {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #a8b5d1;
+  margin-top: 2px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 6px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+label:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ch {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+label > .box {
+  background: rgba(255, 255, 255, 0.08);
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  display: inline-flex;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ch:checked + label > .box {
+  background: #6ef17a;
+  box-shadow: 0 0 0 3px rgba(110, 241, 122, 0.18);
+  border-color: rgba(110, 241, 122, 0.9);
+}
+
+label .text {
+  flex: 1;
+  color: #f5f8ff;
+  font-weight: 600;
+}
+
+label .icon {
+  color: #8fa4cd;
+  transition: color 0.2s ease;
+  font-size: 14px;
+  line-height: 1;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.ch:checked + label .icon {
+  color: #6ef17a;
+}
+
+.ch:checked + label {
+  background: rgba(110, 241, 122, 0.12);
+  border-color: rgba(110, 241, 122, 0.22);
+}
+
+.nested {
+  margin: 0 0 0 28px;
+  padding-left: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, margin 0.4s ease;
+  max-height: 0;
+}
+
+.ch:checked + label + .nested {
+  max-height: 400px;
+  margin-top: 4px;
+}
+
+.favorites {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.favorites h3 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #92a2d3;
+  font-weight: 700;
+}
+
+.fav-count {
+  color: #6ef17a;
+}
+
+#fav-list {
+  display: grid;
+  gap: 8px;
+}
+
+.emote-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.emote-chip:hover {
+  background: rgba(110, 241, 122, 0.1);
+}
+
+.emote-chip img {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.chip-name {
+  flex: 1;
+  font-size: 14px;
+  color: #eef4ff;
+  font-weight: 600;
+}
+
+.chip-provider {
+  font-size: 11px;
+  color: #a5b0d1;
+}
+
+.empty {
+  margin: 0;
+  color: #96a1c4;
+  font-size: 12px;
+  font-style: italic;
+}
+
+@media (max-width: 380px) {
+  body {
+    width: 100vw;
+    min-height: 100vh;
+    padding: 14px 12px 20px;
+  }
+
+  .brand,
+  label,
+  .favorites {
+    border-radius: 16px;
+  }
+}

@@ -2,139 +2,73 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SpaceTTVK Emotes</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        padding: 14px 16px 16px;
-        width: 300px;
-        font-family: system-ui, sans-serif;
-        font-size: 13px;
-        color: #efeff1;
-        background: linear-gradient(160deg, #18181b 0%, #1a1f2e 100%);
-      }
-      h1 {
-        margin: 0 0 4px;
-        font-size: 15px;
-        font-weight: 600;
-      }
-      .tagline {
-        margin: 0 0 12px;
-        color: #adadb8;
-        font-size: 12px;
-      }
-      .surprise {
-        background: linear-gradient(135deg, #2a1f3d, #1f2a3d);
-        border: 1px solid #5b9fd444;
-        border-radius: 8px;
-        padding: 10px 12px;
-        margin-bottom: 12px;
-      }
-      .surprise strong {
-        color: #53fc18;
-      }
-      .surprise code {
-        background: #26262c;
-        padding: 1px 5px;
-        border-radius: 3px;
-        color: #5b9fd4;
-      }
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-      .stat {
-        background: #26262c;
-        border-radius: 8px;
-        padding: 8px;
-        text-align: center;
-      }
-      .stat b {
-        display: block;
-        font-size: 18px;
-        color: #5b9fd4;
-      }
-      .stat span {
-        font-size: 10px;
-        color: #adadb8;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-      h2 {
-        margin: 0 0 6px;
-        font-size: 12px;
-        color: #adadb8;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-      .list {
-        margin-bottom: 12px;
-      }
-      .emote-chip {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 4px 0;
-      }
-      .emote-chip img {
-        width: 22px;
-        height: 22px;
-        object-fit: contain;
-      }
-      .chip-name {
-        flex: 1;
-        font-weight: 500;
-      }
-      .chip-provider {
-        font-size: 11px;
-        color: #5b9fd4;
-      }
-      .empty {
-        margin: 0;
-        color: #71717a;
-        font-size: 12px;
-        font-style: italic;
-      }
-      .hint {
-        margin: 0;
-        font-size: 11px;
-        color: #71717a;
-        line-height: 1.4;
-      }
-      .hint code {
-        color: #5b9fd4;
-      }
-    </style>
+    <title>SpaceTTVK</title>
+    <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <h1>SpaceTTVK Emotes</h1>
-    <p class="tagline">7TV · BTTV · FFZ on Twitch &amp; Kick</p>
-
-    <div class="surprise">
-      🎲 <strong>Emote Roulette</strong> — type <code>:roll</code> or <code>:surprise</code> in chat
-      for a random emote + confetti burst!
+    <div class="brand">
+      <span class="brand-mark">K</span>
+      <div>
+        SpaceTTVK
+        <span class="brand-sub">7TV · BTTV · FFZ for Kick</span>
+      </div>
     </div>
 
-    <div class="stats">
-      <div class="stat"><b id="stat-used">0</b><span>Used</span></div>
-      <div class="stat"><b id="stat-rolls">0</b><span>Rolls</span></div>
-      <div class="stat"><b id="stat-favs">0</b><span>Favorites</span></div>
+    <input type="checkbox" id="enabled" class="ch" checked />
+    <label for="enabled">
+      <span class="box"></span><span class="text">SpaceTTVK emotes</span
+      ><span class="icon">☺</span>
+    </label>
+
+    <div class="nested">
+      <input type="checkbox" id="emotes_7tv" class="ch" checked />
+      <label for="emotes_7tv">
+        <span class="box"></span><span class="text">7TV emotes</span
+        ><span class="icon">7</span>
+      </label>
+
+      <input type="checkbox" id="emotes_bttv" class="ch" checked />
+      <label for="emotes_bttv">
+        <span class="box"></span><span class="text">BTTV emotes</span
+        ><span class="icon">B</span>
+      </label>
+
+      <input type="checkbox" id="emotes_ffz" class="ch" checked />
+      <label for="emotes_ffz">
+        <span class="box"></span><span class="text">FFZ emotes</span
+        ><span class="icon">F</span>
+      </label>
     </div>
 
-    <h2>⭐ Favorites</h2>
-    <div class="list" id="fav-list"></div>
+    <input type="checkbox" id="colon_autocomplete" class="ch" checked />
+    <label for="colon_autocomplete">
+      <span class="box"></span><span class="text">Colon autocomplete</span
+      ><span class="icon">:</span>
+    </label>
 
-    <h2>🕐 Recent</h2>
-    <div class="list" id="recent-list"></div>
+    <input type="checkbox" id="chat_render" class="ch" checked />
+    <label for="chat_render">
+      <span class="box"></span><span class="text">Emotes in chat</span
+      ><span class="icon">▣</span>
+    </label>
 
-    <p class="hint">
-      Type <code>:</code> alone for recent &amp; favorites · <code>Alt+click</code> to star an emote
-    </p>
+    <input type="checkbox" id="hide_kick_native" class="ch" checked />
+    <label for="hide_kick_native">
+      <span class="box"></span><span class="text">Hide Kick native picker</span
+      ><span class="icon">✕</span>
+    </label>
+
+    <input type="checkbox" id="show_favorites" class="ch" checked />
+    <label for="show_favorites">
+      <span class="box"></span><span class="text">Favorites in autocomplete</span
+      ><span class="icon">★</span>
+    </label>
+
+    <section class="favorites">
+      <h3>★ Favorites · <span class="fav-count" id="stat-favs">0</span></h3>
+      <div id="fav-list"></div>
+      <p class="empty" id="fav-hint">Alt+click an emote in chat to favorite it</p>
+    </section>
 
     <script src="src/storage.js"></script>
     <script src="popup.js"></script>
