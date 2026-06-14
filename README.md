@@ -4,7 +4,8 @@ Chrome extension for **Kick** (and Twitch) inspired by the clean toggle UI of [P
 
 Type `:` followed by an emote name and pick from the dropdown.
 
-![Emote autocomplete preview](assets/preview.png)
+![Emote autocomplete preview](<img width="375" height="600" alt="image" src="https://github.com/user-attachments/assets/8004d3cc-3bf1-4a24-8169-e7870ba02fa2" />
+g)
 
 ## Popup (PolyExtended-style)
 
