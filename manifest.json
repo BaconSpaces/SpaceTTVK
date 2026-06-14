@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "SpaceTTVK Emotes",
+  "version": "1.1.0",
+  "description": "7TV, BTTV & FFZ emote autocomplete with : on Twitch and Kick — plus Emote Roulette!",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://*.twitch.tv/*",
+    "https://*.kick.com/*",
+    "https://7tv.io/*",
+    "https://api.7tv.app/*",
+    "https://cdn.7tv.app/*",
+    "https://api.betterttv.net/*",
+    "https://cdn.betterttv.net/*",
+    "https://api.frankerfacez.com/*",
+    "https://cdn.frankerfacez.com/*",
+    "https://kick.com/*",
+    "https://decapi.me/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.twitch.tv/*", "https://*.kick.com/*"],
+      "js": ["src/storage.js", "src/content.js"],
+      "css": ["src/autocomplete.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "SpaceTTVK Emotes",
+    "default_popup": "popup.html"
+  }
+}

@@ -13,9 +13,6 @@ Type `:` followed by an emote name (for example `:W` or `:pepe`) and pick from t
 - Keyboard navigation: ↑ ↓ to move, Enter or Tab to insert, Esc to close
 - Loads global + channel emotes automatically when you open a stream
 - Works on Twitch (`twitch.tv`) and Kick (`kick.com`)
-- **🎲 Emote Roulette** — type `:roll` or `:surprise` for a random emote + confetti
-- **⭐ Favorites** — Alt+click any emote in the dropdown to save it
-- **🕐 Recent emotes** — type `:` alone to see your favorites & recently used emotes
 
 ## Supported providers
 
@@ -56,14 +53,9 @@ SpaceTTVK/
 │   ├── background.js   # Fetches & caches emotes
 │   ├── emotes.js       # 7TV / BTTV / FFZ API helpers
 │   ├── content.js      # Chat autocomplete UI
-│   ├── storage.js      # Recent, favorites & stats
 │   └── autocomplete.css
 └── README.md
 ```
-
-## Backups
-
-Snapshots live in `backup/` before major updates. See `backup/README.md` to restore.
 
 ## Permissions
 

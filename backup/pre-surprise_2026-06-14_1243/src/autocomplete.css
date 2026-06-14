@@ -1,0 +1,86 @@
+.sttvk-autocomplete {
+  position: fixed;
+  z-index: 2147483646;
+  min-width: 220px;
+  max-width: 360px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #1f1f23;
+  border: 1px solid #3a3a3d;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  font-family: "Inter", "Roobert", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #efeff1;
+  padding: 4px 0;
+  display: none;
+}
+
+.sttvk-autocomplete.is-visible {
+  display: block;
+}
+
+.sttvk-autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sttvk-autocomplete-item.is-selected,
+.sttvk-autocomplete-item:hover {
+  background: #3a3a3d;
+}
+
+.sttvk-autocomplete-item img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sttvk-autocomplete-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sttvk-autocomplete-provider {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #5b9fd4;
+}
+
+.sttvk-autocomplete-empty {
+  padding: 8px 10px;
+  color: #adadb8;
+  font-style: italic;
+}
+
+.sttvk-autocomplete::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sttvk-autocomplete::-webkit-scrollbar-thumb {
+  background: #464649;
+  border-radius: 3px;
+}
+
+/* Hide native / third-party colon autocomplete while ours is open */
+html.sttvk-autocomplete-active .seventv-autocomplete-list,
+html.sttvk-autocomplete-active #chat-input-wrapper [role="listbox"],
+html.sttvk-autocomplete-active [data-testid="chat-emote-suggestion-list"],
+html.sttvk-autocomplete-active [class*="emote-suggestion"],
+html.sttvk-autocomplete-active [class*="EmoteSuggestion"],
+html.sttvk-autocomplete-active [data-a-target="autocomplete-balloon"],
+html.sttvk-autocomplete-active .chat-input__autocomplete,
+html.sttvk-autocomplete-active #emotePopup,
+html.sttvk-autocomplete-active .ffz-autocomplete-list,
+html.sttvk-autocomplete-active .bttv-emote-autocomplete {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
