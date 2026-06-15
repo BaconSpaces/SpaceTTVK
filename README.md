@@ -89,6 +89,24 @@ Snapshots live in `backup/` before major updates. See `backup/README.md` to rest
 MIT
 
 
-# TODO 
-Make `:` Work
-Make a Control Panel   useful
+## TODO
+
+### 🔄 In Progress
+- [ ] Re-enable colon autocomplete trigger (`:`) with opt-in toggle
+
+### 📋 Features
+- [ ] **Control Panel** — enhance popup UI with more detailed settings
+  - [ ] Enable/disable individual autocomplete triggers
+  - [ ] Search history & frequency stats
+  - [ ] Emote search in popup
+- [ ] **Custom emote triggers** — allow users to set alternative triggers (e.g., `;`)
+- [ ] **Autocomplete fuzzy search** — improve matching algorithm
+- [ ] **Performance** — optimize emote loading for large channel lists
+
+### 🐛 Bugs & Fixes
+- [ ] Test Kick native picker hiding on latest Kick version
+- [ ] Handle edge cases in chat rendering (nested emotes, mentions)
+
+### 📚 Documentation
+- [ ] Add troubleshooting guide
+- [ ] Create developer setup instructions
